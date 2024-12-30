@@ -7,16 +7,15 @@ export default {
   theme: {
   	extend: {
   		fontFamily: {
-  			sans: [
-  				'var(--font-geist-sans)',
-                    ...fontFamily.sans
-                ]
+			grotesk: "var(--font-grotesk)",
+			sora: "var(--font-sora)",
   		},
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
   		},
+		 
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',

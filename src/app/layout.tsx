@@ -10,6 +10,19 @@ import {
   UserButton
 } from '@clerk/nextjs'
 import { TRPCReactProvider } from "~/trpc/react";
+import { Sora, Space_Grotesk } from "next/font/google";
+
+const grotesk = Space_Grotesk({
+  weight: ["700"],
+  subsets: ["latin"],
+  variable: "--font-grotesk",
+});
+
+const sora = Sora({
+  weight: ["600"],
+  subsets: ["latin"],
+  variable: "--font-sora",
+});
 
 export const metadata: Metadata = {
   title: "GithubAI",
@@ -22,13 +35,13 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <ClerkProvider>
-      <html lang="en" className={`${GeistSans.variable}`}>
+      <html lang="en" className={`${sora.variable} ${grotesk.variable}`}>
         <body>
           <SignedOut>
             <SignInButton />
           </SignedOut>
           <SignedIn>
-            <UserButton />
+           
           </SignedIn>
           <TRPCReactProvider>{children}</TRPCReactProvider>
         </body>
