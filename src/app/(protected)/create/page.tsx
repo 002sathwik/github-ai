@@ -2,8 +2,10 @@
 import Image from 'next/image';
 import React from 'react'
 import { useForm } from "react-hook-form"
+import { toast } from 'sonner';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
+import { api } from '~/trpc/react';
 
 
 type FormProps = {
@@ -16,8 +18,22 @@ type FormProps = {
 const CreatePage = () => {
     const { register, handleSubmit, reset } = useForm<FormProps>();
 
+    const createproject = api.project.createproject.useMutation()
+
     function handelSubmit(data: FormProps) {
-        window.alert(JSON.stringify(data, null, 2))
+        createproject.mutate({
+            name: data.projectName,
+            githubUrl: data.repoUrl,
+            githubToken: data.githubToken
+        }, {
+            onSuccess: () => {
+                toast.success('Project Created Successfully')
+                reset()
+            },
+            onError: (error) => {
+                toast.error(error.message)
+            }
+        })
     }
 
     return (
@@ -56,7 +72,7 @@ const CreatePage = () => {
                             required
                         />
                         <div className="h-3"></div>
-                        <Button type='submit' className='w-full font-sora rounded-xl'>
+                        <Button type='submit' className='w-full font-sora rounded-xl' disabled={createproject.isPending}>
                             Create Project
                         </Button>
                     </form>

@@ -19,7 +19,7 @@ model User {
 
     credits Int @default(150)
 
-    UserToProject UserToProject[]
+    userToProject UserToProject[]
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -34,7 +34,7 @@ model Project {
 
     deletedAt DateTime?
 
-    UserToProject UserToProject[]
+    userToProject UserToProject[]
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt

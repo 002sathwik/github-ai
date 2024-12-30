@@ -1,16 +1,13 @@
 import "~/styles/globals.css";
 
-import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
 import {
   ClerkProvider,
-  SignInButton,
-  SignedIn,
-  SignedOut,
-  UserButton
 } from '@clerk/nextjs'
 import { TRPCReactProvider } from "~/trpc/react";
 import { Sora, Space_Grotesk } from "next/font/google";
+import { Toast } from "@radix-ui/react-toast";
+import { Toaster } from "sonner";
 
 const grotesk = Space_Grotesk({
   weight: ["700"],
@@ -37,13 +34,8 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" className={`${sora.variable} ${grotesk.variable}`}>
         <body>
-          <SignedOut>
-            <SignInButton />
-          </SignedOut>
-          <SignedIn>
-           
-          </SignedIn>
           <TRPCReactProvider>{children}</TRPCReactProvider>
+          <Toaster/>
         </body>
       </html>
     </ClerkProvider>

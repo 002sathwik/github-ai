@@ -21,12 +21,14 @@ const SyncUser = async () => {
     await db.user.upsert({
         where: { emailAddress: user.emailAddresses[0].emailAddress },
         update: {
+            id: user.id,
             imageUrl: user.imageUrl,
             firstName: user.firstName,
             lastName: user.lastName,
 
         },
         create: {
+            id: user.id,
             emailAddress: user.emailAddresses[0].emailAddress,
             imageUrl: user.imageUrl,
             firstName: user.firstName,
