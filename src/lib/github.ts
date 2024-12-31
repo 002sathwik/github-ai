@@ -23,9 +23,7 @@ type Response = {
 
 
 export const getCommitHashes = async (githubUrl: string): Promise<Response[]> => {
-    const urlParts = githubUrl.replace(/https?:\/\/(www\.)?github\.com\//, "").split('/');
-    const [owner, repoWithGit] = urlParts.slice(-2);
-    const repo = repoWithGit?.replace(/\.git$/, '') ?? '';
+    const [owner, repo] = githubUrl.split("/").slice(-2);
     if (!owner || !repo) {
         throw new TRPCClientError('Invalid Github URL');
     }
@@ -50,19 +48,17 @@ export const getCommitHashes = async (githubUrl: string): Promise<Response[]> =>
 
 // Summarise commits
 async function summariseCommits(githubUrl: string, commitHash: string) {
-    const urlParts = githubUrl.replace(/https?:\/\/(www\.)?github\.com\//, "").split('/');
-    const [owner, repoWithGit] = urlParts.slice(-2);
-    const repo = repoWithGit?.replace(/\.git$/, '');
 
-        const { data } = await axios.get(`https://github.com/${owner}/${repo}/commit/${commitHash}.diff`, {
-            headers: {
-                Accept: 'application/vnd.github.v3.diff',
-            },
-        });
-        
-        return await aiSummariseCommits(data);
-   
-    
+    console.log(`${githubUrl}/commit/${commitHash}.diff`);
+    const { data } = await axios.get(`${githubUrl}/commit/${commitHash}.diff`, {
+        headers: {
+            Accept: 'application/vnd.github.v3.diff',
+            Authorization: `Bearer ${process.env.GITHUB_TOKEN}`
+        },
+    });
+
+    return await aiSummariseCommits(data);
+
 }
 
 
@@ -81,7 +77,7 @@ export const pollCommits = async (projectId: string) => {
     const summaries = summarisesResponses.map((response) => {
         if (response.status === 'fulfilled') {
             return response.value as string;
-        }else{
+        } else {
             console.log("Filed to summarise commit", response.reason);
         }
         return "";
@@ -114,12 +110,10 @@ async function fetchProjectGithubUrl(projectId: string) {
             githubUrl: true,
         }
     });
-    if (!project?.githubUrl) {
-        throw new  Error('Project not found');
-    }
+
     return {
         project,
-        githubUrl: project?.githubUrl,
+        githubUrl: project?.githubUrl
     };
 }
 
