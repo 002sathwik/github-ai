@@ -8,6 +8,8 @@ const model = genAI.getGenerativeModel({
     model: 'gemini-1.5-flash',
 })
 
+
+//gemini-function to summarise  perticular commits of the project
 export const aiSummariseCommits = async (diff: string): Promise<string> => {
     const response = await model.generateContent({
         contents: [
@@ -61,7 +63,7 @@ Please summarize the following diff file:
 
 }
 
-
+//gemini-function to  summarise  langchain genereted documents of perticular project
 export async function summariseCode(doc: Document) {
 
     const code = doc.pageContent.slice(0, 1000);
@@ -89,4 +91,19 @@ Here is the Code:
 
     return response.response.text()
 }
+
+
+//gemini-function to  get Embeddings of perticular summary of  langchain genereted documents of perticular project 
+export async function generateEmbedding(summary: string) {
+    const modelembeddings = genAI.getGenerativeModel({
+        model: 'text-embedding-004',
+    })
+    const result = await modelembeddings.embedContent(summary)
+    const embedding = result.embedding
+    return embedding.values
+
+}
+
+
+
 
