@@ -1,10 +1,11 @@
 'use client'
 import Image from 'next/image';
-import React from 'react'
+import React, { use } from 'react'
 import { useForm } from "react-hook-form"
 import { toast } from 'sonner';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
+import UseRefetch from '~/hooks/use-refetch';
 import { api } from '~/trpc/react';
 
 
@@ -17,9 +18,8 @@ type FormProps = {
 
 const CreatePage = () => {
     const { register, handleSubmit, reset } = useForm<FormProps>();
-
     const createproject = api.project.createproject.useMutation()
-
+    const  refetch = UseRefetch()
     function handelSubmit(data: FormProps) {
         createproject.mutate({
             name: data.projectName,
@@ -28,6 +28,7 @@ const CreatePage = () => {
         }, {
             onSuccess: () => {
                 toast.success('Project Created Successfully')
+                refetch()
                 reset()
             },
             onError: (error) => {

@@ -5,7 +5,7 @@
 import { Bot, CreditCard, LayoutDashboard, Plus, Presentation, RibbonIcon } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import React from 'react';
+import React, { use } from 'react';
 import {
     Sidebar,
     SidebarContent,
@@ -20,6 +20,7 @@ import {
 } from '~/components/ui/sidebar';
 import { cn } from '~/lib/utils';
 import { Button } from '~/components/ui/button';
+import UseProject from '~/hooks/use-project';
 
 
 
@@ -46,28 +47,12 @@ const items = [
     },
 ];
 
-const projects = [
-    {
-        name: 'Project 1',
 
-    },
-    {
-        name: 'Project 2',
-
-    },
-    {
-        name: 'Project 3',
-
-    },
-    {
-        name: 'Project 4',
-
-    },
-]
 
 const AppSidebar = () => {
     const pathname = usePathname();
     const { open } = useSidebar();
+    const { projects, projectId, setProjectId } = UseProject()
 
     return (
         <Sidebar collapsible="icon" variant="floating"  >
@@ -114,16 +99,16 @@ const AppSidebar = () => {
                     <SidebarGroupLabel className='text-md font-grotesk text-gray-600'>Your Projects</SidebarGroupLabel>
                     <SidebarGroupContent >
                         <SidebarMenu >
-                            {projects.map((item) => (
+                            {projects?.map((item) => (
                                 <SidebarMenuItem key={item.name} >
                                     <SidebarMenuButton asChild >
-                                        <div>
+                                        <div onClick={() => setProjectId(item.id)} className='flex cursor-pointer items-center gap-2 p-2 rounded-md font-sora'>
                                             <div
 
                                                 className={cn(
                                                     ' rounded-sm border size-6  flex items-center gap-2 p-2 r font-sora',
                                                     {
-                                                        'bg-primary text-white': true
+                                                        'bg-primary text-white': projectId === item.id,
                                                     }
 
                                                 )}
@@ -142,7 +127,7 @@ const AppSidebar = () => {
                                         {open ? (<Button variant={'outline'} className='font-sora w-fit' >
                                             <Plus />
                                             Create Project
-                                        </Button>) : (<div  className=' border font-sora w-fit p-1 shadow' >
+                                        </Button>) : (<div className=' border font-sora w-fit p-1 shadow' >
                                             <Plus />
                                         </div>)}
 
