@@ -1,26 +1,44 @@
 'use client'
+import { set } from 'date-fns';
 import Image from 'next/image';
-import React, { use } from 'react'
+import { useRouter } from 'next/navigation';
+import React, { use, useState } from 'react'
 import { useForm } from "react-hook-form"
 import { toast } from 'sonner';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
+import { MultiStepLoader } from '~/components/ui/multi-step-loader';
 import UseRefetch from '~/hooks/use-refetch';
 import { api } from '~/trpc/react';
-
 
 type FormProps = {
     repoUrl: string;
     projectName: string;
     githubToken?: string;
 }
-
+const loadingStates = [
+    {
+        text: "creating a project",
+    },
+    {
+        text: "Extracting commitsHashes",
+    },
+    {
+        text: "summarising Responses",
+    },
+    {
+        text: "Storing Commit summaries",
+    },
+];
 
 const CreatePage = () => {
+    const [loading, setLoading] = useState(false);
     const { register, handleSubmit, reset } = useForm<FormProps>();
-    const createproject = api.project.createproject.useMutation()
-    const  refetch = UseRefetch()
+    const createproject = api.project.createproject.useMutation();
+    const router = useRouter()
+    const refetch = UseRefetch()
     function handelSubmit(data: FormProps) {
+        setLoading(true)
         createproject.mutate({
             name: data.projectName,
             githubUrl: data.repoUrl,
@@ -30,11 +48,22 @@ const CreatePage = () => {
                 toast.success('Project Created Successfully')
                 refetch()
                 reset()
+                router.push('/dashboard')
+                setLoading(false)
             },
             onError: (error) => {
                 toast.error(error.message)
+                setLoading(false)
             }
         })
+    }
+
+    if (loading) {
+        return (
+            <div className="w-full h-[60vh] flex items-center justify-center">
+                <MultiStepLoader loadingStates={loadingStates} loading={loading} duration={2000} />
+            </div>
+        )
     }
 
     return (
@@ -67,10 +96,10 @@ const CreatePage = () => {
                         />
                         <div className="h-2"></div>
                         <Input
-                            {...register('githubToken', { required: true })}
+                            {...register('githubToken', { required: false })}
                             placeholder='Github Token(optional)'
                             className='font-sora'
-                            required
+
                         />
                         <div className="h-3"></div>
                         <Button type='submit' className='w-full font-sora rounded-xl' disabled={createproject.isPending}>

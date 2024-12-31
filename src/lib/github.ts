@@ -3,7 +3,6 @@ import { Octokit } from 'octokit';
 import { db } from '~/server/db';
 import axios from 'axios';
 import { aiSummariseCommits } from './gemini';
-import { es } from 'date-fns/locale';
 
 
 
@@ -55,19 +54,12 @@ async function summariseCommits(githubUrl: string, commitHash: string) {
     const [owner, repoWithGit] = urlParts.slice(-2);
     const repo = repoWithGit?.replace(/\.git$/, '');
 
-
-    
-
-   
-        
         const { data } = await axios.get(`https://github.com/${owner}/${repo}/commit/${commitHash}.diff`, {
             headers: {
                 Accept: 'application/vnd.github.v3.diff',
             },
         });
         
-        console.log(data);
-
         return await aiSummariseCommits(data);
    
     

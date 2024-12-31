@@ -7,4 +7,8 @@ const createProject = z.object({
     githubToken: z.string().optional(),
 });
 
-export { createProject }
+const getAllCommits = z.object({
+    projectId: z.string(),
+});
+
+export { createProject , getAllCommits };
