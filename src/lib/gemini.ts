@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
+import { Document } from '@langchain/core/documents'
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
 
@@ -58,5 +59,34 @@ Please summarize the following diff file:
 
     return response.response.text()
 
+}
+
+
+export async function summariseCode(doc: Document) {
+
+    const code = doc.pageContent.slice(0, 1000);
+    const response = await model.generateContent({
+        contents: [
+            {
+                role: "user",
+                parts: [
+                    {
+                        text: `
+You are an expert programmer and software engineer who specialises in onbording juniear software engnieers onto, and you are trying to summarize a code snippet.
+You are onboarding a junior software engineer, and you are trying to explain them the purpose of the ${doc.metadata.source} file
+
+Here is the Code:
+----------------
+\n\n${code}
+----------------
+\n\nGive a  summarize the purpose of the code snippet above. no more than 100 words of the code above.
+                    `,
+                    },
+                ],
+            },
+        ],
+    })
+
+    return response.response.text()
 }
 
