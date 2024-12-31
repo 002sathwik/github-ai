@@ -65,36 +65,67 @@ Please summarize the following diff file:
 
 //gemini-function to  summarise  langchain genereted documents of perticular project
 export async function summariseCode(doc: Document) {
+    // Helper function to introduce delays (Exponential Backoff)
+    const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-    const code = doc.pageContent.slice(0, 1000);
-    const response = await model.generateContent({
-        contents: [
-            {
-                role: "user",
-                parts: [
-                    {
-                        text: `
-You are an expert programmer and software engineer who specialises in onbording juniear software engnieers onto, and you are trying to summarize a code snippet.
-You are onboarding a junior software engineer, and you are trying to explain them the purpose of the ${doc.metadata.source} file
+    // Maximum retry attempts
+    const maxRetries = 3;
 
-Here is the Code:
-----------------
-\n\n${code}
-----------------
-\n\nGive a  summarize the purpose of the code snippet above. no more than 100 words of the code above.
-                    `,
-                    },
-                ],
-            },
-        ],
-    })
+    try {
+        const code = doc.pageContent.slice(0, 1000);
+        let attempt = 0;
 
-    return response.response.text()
+        while (attempt < maxRetries) {
+            try {
+                // API Request
+                const response = await model.generateContent({
+                    contents: [
+                        {
+                            role: "user",
+                            parts: [
+                                {
+                                    text: `
+    You are an expert programmer and software engineer who specialises in onboarding junior software engineers, and you are summarizing a code snippet.
+    You are onboarding a junior software engineer and explaining the purpose of the ${doc.metadata.source} file.
+    
+    Here is the Code:
+    ----------------
+    \n\n${code}
+    ----------------
+    \n\nSummarize the purpose of the code snippet above in no more than 100 words.
+                                `,
+                                },
+                            ],
+                        },
+                    ],
+                });
+
+                // Return response if successful
+                return response.response.text();
+            } catch (error: any) {
+                // Check if the error is related to rate limits or retries
+                if (error.response?.status === 429) {
+                    attempt++; // Increment retry count
+                    const waitTime = 2 ** attempt * 1000; // Exponential backoff
+                    console.warn(`Rate limit hit. Retrying in ${waitTime / 1000}s...`);
+                    await delay(waitTime); // Wait before retrying
+                } else {
+                    // Throw other errors immediately
+                    throw error;
+                }
+            }
+        }
+
+        // If retries are exhausted
+        throw new Error('Max retries reached. Unable to process request.');
+    } catch (error) {
+        console.error('Failed to summarize code:', error);
+        return '';
+    }
 }
 
-
 //gemini-function to  get Embeddings of perticular summary of  langchain genereted documents of perticular project 
-export async function generateEmbedding(summary: string) {
+export async function generateEmbeddingOfSummary(summary: string) {
     const modelembeddings = genAI.getGenerativeModel({
         model: 'text-embedding-004',
     })

@@ -1,6 +1,7 @@
 import { createProject, getAllCommits } from "~/zod/projectZ";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { pollCommits } from "~/lib/github";
+import { indexGithubRepo } from "~/lib/langchain-github-loader";
 
 export const projectRouter = createTRPCRouter({
 
@@ -20,6 +21,7 @@ export const projectRouter = createTRPCRouter({
                 }
             }
         })
+        await indexGithubRepo(project.id, input.githubUrl, input.githubToken)
         await pollCommits(project.id)
         return project;
 
@@ -56,12 +58,16 @@ export const projectRouter = createTRPCRouter({
                 project: {
                     id: input.projectId
                 }
-                
-                
+
+
             },
-            orderBy:{
+            orderBy: {
                 commitDate: "desc"
             }
+            ,
+            distinct: ["commitMessage"],
+            
+
         })
     }),
 

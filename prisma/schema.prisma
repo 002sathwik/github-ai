@@ -38,7 +38,7 @@ model Project {
 
     userToProject        UserToProject[]
     commits              Commit[]
-    sourceCodeEmbeadings SourceCodeEmbeadings[]
+    sourceCodeEmbeaddings SourceCodeEmbeaddings[]
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -59,7 +59,7 @@ model UserToProject {
     @@unique([userId, projectId])
 }
 
-model SourceCodeEmbeadings {
+model SourceCodeEmbeaddings {
     id                String                      @id @default(cuid())
     summaryEmbeddings Unsupported("vector(768)")?
     sourceCode        String
