@@ -56,6 +56,11 @@ export const projectRouter = createTRPCRouter({
                 project: {
                     id: input.projectId
                 }
+                
+                
+            },
+            orderBy:{
+                commitDate: "desc"
             }
         })
     }),
