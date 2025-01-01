@@ -21,7 +21,8 @@ model User {
 
     credits Int @default(150)
 
-    userToProject UserToProject[]
+    userToProject  UserToProject[]
+    questionsAsked Question[]
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -36,9 +37,10 @@ model Project {
 
     deletedAt DateTime?
 
-    userToProject        UserToProject[]
-    commits              Commit[]
+    userToProject         UserToProject[]
+    commits               Commit[]
     sourceCodeEmbeaddings SourceCodeEmbeaddings[]
+    savedQuestions        Question[]
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -84,6 +86,22 @@ model Commit {
 
     projectId String
     project   Project @relation(fields: [projectId], references: [id])
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Question {
+    id             String @id @default(cuid())
+    question       String
+    answer         String
+    fileReferences Json?
+
+    projectId String
+    project   Project @relation(fields: [projectId], references: [id])
+
+    userId String
+    user   User   @relation(fields: [userId], references: [id])
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
