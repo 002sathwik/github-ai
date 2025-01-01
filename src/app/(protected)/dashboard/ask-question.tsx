@@ -9,6 +9,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '~/components/u
 import { RibbonIcon } from 'lucide-react';
 import { askQuestion } from './actions';
 import { readStreamableValue } from 'ai/rsc';
+import MDEditor from '@uiw/react-md-editor'
+import TurndownService from 'turndown';
+import CodeReferences from './code-references';
+import { MultiStepLoader } from '~/components/ui/multi-step-loader';
+import { Skeleton } from '~/components/ui/skeleton';
+import SkeletonLoder from '~/components/loding-skeleton';
+
 
 const AskQuestions = () => {
     const [question, setQuestion] = React.useState('');
@@ -17,20 +24,30 @@ const AskQuestions = () => {
     const { project } = UseProject();
     const [filesReferences, setFilesReferences] = React.useState<{ fileName: string; sourceCode: string; summary: string }[]>([]);
     const [answers, setAnswers] = React.useState('')
+
+    const turndownService = new TurndownService();
+
     const onSubmit = async (e: React.FormEvent) => {
+        setOpen(true);
+        setAnswers('');
+        setFilesReferences([]);
         e.preventDefault();
         if (!project?.id) return;
         setLoading(true);
-        setOpen(true);
         const { output, filesReferences } = await askQuestion({ question, projectId: project.id });
         setFilesReferences(filesReferences);
 
+        let htmlOutput = '';
         for await (const delta of readStreamableValue(output)) {
             if (delta) {
-                setAnswers(ans => ans + delta)
+                htmlOutput += delta;
             }
         }
+
+        const markdown = turndownService.turndown(htmlOutput);
+        setAnswers(markdown);
         setLoading(false);
+        setQuestion('');
     }
 
     return (
@@ -48,40 +65,46 @@ const AskQuestions = () => {
                             onChange={e => setQuestion(e.target.value)}
                         />
                         <div className="h-4"></div>
-                        <Button type='submit' className='rounded-lg font-grotesk'>
+                        <Button type='submit' className='rounded-lg font-grotesk' disabled={loading}>
                             Ask Question!
                         </Button>
                     </form>
                 </CardContent>
             </Card>
 
-
             {open && (
                 <Dialog open={open} onOpenChange={setOpen}>
-                    <DialogContent>
+                    <DialogContent className='sm:max-w-[80vw] rounded-md'>
                         <DialogHeader>
-                            <DialogTitle>
+                            <DialogTitle className='flex items-center space-x-2'>
                                 <RibbonIcon size={30} />
+                                <span className='font-grotesk'>Github-AI</span>
                             </DialogTitle>
                         </DialogHeader>
-                        <p className='font-grotesk'>Your Answer</p>
-                        <div className="h-4"></div>
-                        <div>
-                            {answers}
-                        </div>
-                        {
-                            filesReferences.map(file => {
-                                return <span>{file.fileName}</span>
-                            })
-                        }
-                        <Button className='rounded-lg font-grotesk' onClick={() => setOpen(false)}>
-                            Close
-                        </Button>
+
+                        {loading ? (
+                            <>
+                                <SkeletonLoder />
+                            </>
+                        ) : (
+
+                            <>
+                                <MDEditor.Markdown
+                                    source={answers}
+                                    className="!bg-white !text-black [&>pre]:!bg-black [&>pre]:!text-white [&>code]:!text-white 
+                             font-grotesk max-w-[80vw] !h-full max-h-[40vh] overflow-scroll"
+                                />
+                                <div className="h-2"></div>
+                                <CodeReferences filesReferences={filesReferences} />
+                            </>
+                        )}
                     </DialogContent>
                 </Dialog>
+
             )}
         </div>
     );
 }
+
 
 export default AskQuestions;
