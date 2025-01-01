@@ -12,7 +12,7 @@ const DashboardPage = () => {
     const { project } = UseProject()
     return (
         <div>
-           
+
             <div className=' flex items-center justify-between flex-wrap gay-y-4'>
                 {/* github link */}
                 <div className='w-fit  rounded-sm bg-neutral-900 p-2 font-sora '>
@@ -39,12 +39,12 @@ const DashboardPage = () => {
             </div>
             <div className="mt-4">
                 <div className='grid grid-col-1 gap-4 sm:grid-cols-2'>
-                 <AskQuestions/>
+                    <AskQuestions />
                     MeetingCard
                 </div>
             </div>
-        <div className="mt-8"></div>
-        <CommitLogs/>
+            <div className="mt-8"></div>
+            <CommitLogs />
         </div>
     )
 }
