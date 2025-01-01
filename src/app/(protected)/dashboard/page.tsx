@@ -5,13 +5,14 @@ import React from 'react'
 import UseProject from '~/hooks/use-project'
 import Link from 'next/link'
 import CommitLogs from './commit-log'
+import AskQuestions from './ask-question'
 
 const DashboardPage = () => {
 
     const { project } = UseProject()
     return (
         <div>
-            {project?.id}
+           
             <div className=' flex items-center justify-between flex-wrap gay-y-4'>
                 {/* github link */}
                 <div className='w-fit  rounded-sm bg-neutral-900 p-2 font-sora '>
@@ -37,8 +38,8 @@ const DashboardPage = () => {
                 </div>
             </div>
             <div className="mt-4">
-                <div className='grid grid-col-1 gap-4 sm:grid-cols-5'>
-                    AskQuestion
+                <div className='grid grid-col-1 gap-4 sm:grid-cols-2'>
+                 <AskQuestions/>
                     MeetingCard
                 </div>
             </div>
