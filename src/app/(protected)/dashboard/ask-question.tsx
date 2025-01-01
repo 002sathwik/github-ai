@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Textarea } from '~/components/ui/textarea';
 import UseProject from '~/hooks/use-project';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '~/components/ui/dialog';
-import { RibbonIcon } from 'lucide-react';
+import { DownloadIcon, EyeClosed, RibbonIcon, X } from 'lucide-react';
 import { askQuestion } from './actions';
 import { readStreamableValue } from 'ai/rsc';
 import MDEditor from '@uiw/react-md-editor'
@@ -15,6 +15,8 @@ import CodeReferences from './code-references';
 import { MultiStepLoader } from '~/components/ui/multi-step-loader';
 import { Skeleton } from '~/components/ui/skeleton';
 import SkeletonLoder from '~/components/loding-skeleton';
+import { api } from '~/trpc/react';
+import { toast } from 'sonner';
 
 
 const AskQuestions = () => {
@@ -24,7 +26,7 @@ const AskQuestions = () => {
     const { project } = UseProject();
     const [filesReferences, setFilesReferences] = React.useState<{ fileName: string; sourceCode: string; summary: string }[]>([]);
     const [answers, setAnswers] = React.useState('')
-
+    const saveAnswer = api.question.saveAnswer.useMutation();
     const turndownService = new TurndownService();
 
     const onSubmit = async (e: React.FormEvent) => {
@@ -47,6 +49,29 @@ const AskQuestions = () => {
         const markdown = turndownService.turndown(htmlOutput);
         setAnswers(markdown);
         setLoading(false);
+
+    }
+
+    function handelSaveAnswer() {
+        saveAnswer.mutate({
+            projectId: project?.id!,
+            question: question,
+            answer: answers,
+            fileReferences: filesReferences
+        }, {
+            onSuccess: () => {
+                toast.success('Answer Saved Successfully')
+            },
+            onError: (error) => {
+                toast.error(error.message)
+            }
+        })
+    }
+
+    function handelClose() {
+        setOpen(false);
+        setAnswers('');
+        setFilesReferences([]);
         setQuestion('');
     }
 
@@ -74,12 +99,26 @@ const AskQuestions = () => {
 
             {open && (
                 <Dialog open={open} onOpenChange={setOpen}>
-                    <DialogContent className='sm:max-w-[80vw] rounded-md'>
+                    <DialogContent className='sm:max-w-[90vw] rounded-md'>
                         <DialogHeader>
-                            <DialogTitle className='flex items-center space-x-2'>
-                                <RibbonIcon size={30} />
-                                <span className='font-grotesk'>Github-AI</span>
-                            </DialogTitle>
+                            <div className="flex items-center justify-between  gap-2 ">
+                                <DialogTitle className='flex items-center  space-x-2'>
+                                    <RibbonIcon size={30} />
+                                    <span className='font-grotesk'>Github-AI</span>
+                                </DialogTitle>
+                                {!loading && (
+                                    <>
+                                        <Button className='font-grotesk gap-2 flex w-fit ' onClick={handelSaveAnswer} disabled={saveAnswer.isPending}>
+                                            <DownloadIcon size={5} /> save Answer
+                                        </Button>
+                                    </>
+                                )}
+
+                                <Button className='font-grotesk gap-2 flex w-fit ' onClick={handelClose} >
+                                    <X size={5} /> close
+                                </Button>
+
+                            </div>
                         </DialogHeader>
 
                         {loading ? (
@@ -92,9 +131,9 @@ const AskQuestions = () => {
                                 <MDEditor.Markdown
                                     source={answers}
                                     className="!bg-white !text-black [&>pre]:!bg-black [&>pre]:!text-white [&>code]:!text-white 
-                             font-grotesk max-w-[80vw] !h-full max-h-[40vh] overflow-scroll"
+                             font-grotesk max-w-[90vw] !h-full max-h-[40vh] overflow-scroll"
                                 />
-                                <div className="h-2"></div>
+
                                 <CodeReferences filesReferences={filesReferences} />
                             </>
                         )}
