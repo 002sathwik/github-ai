@@ -3,11 +3,15 @@ import * as z from 'zod';
 
 
 const saveAnswerZ = z.object({
-    projectId:z.string(),
+    projectId: z.string(),
     question: z.string(),
     answer: z.string(),
-    fileReferences : z.any(),
+    fileReferences: z.any(),
+})
+
+const getQuestionZ = z.object({
+    projectId: z.string()
 })
 
 
-export {saveAnswerZ}
+export { saveAnswerZ ,getQuestionZ }
