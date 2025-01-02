@@ -3,13 +3,20 @@ import { GithubRepoLoader } from '@langchain/community/document_loaders/web/gith
 import { Document } from '@langchain/core/documents'
 import { generateEmbeddingOfSummary, summariseCode } from './gemini'
 import { db } from '~/server/db'
+import { getDefaultBranch } from './github';
+
+
+
+
+
+
 
 
 export const loadgithubRepo = async (githubUrl: string, githubToken?: string) => {
-
+    const defaultBranch = await getDefaultBranch(githubUrl)
     const loader = new GithubRepoLoader(githubUrl, {
         accessToken: githubToken || process.env.GITHUB_TOKEN,
-        branch: 'main',
+        branch: defaultBranch,
         ignoreFiles: ['bun.lockb', '.gitignore', 'README.md', 'LICENSE', 'CONTRIBUTING.md', 'CODE_OF_CONDUCT.md', 'PULL_REQUEST_TEMPLATE.md', 'ISSUE_TEMPLATE.md', 'package.json', 'package-lock.json', 'yarn.lock', 'tsconfig.json', 'tsconfig.build.json', 'jest.config.js', 'jest.setup.js', 'jest.setup.ts', 'jest.setup.tsx', 'jest.setup.babel.js', 'jest.setup.babel.ts', 'jest.setup.babel.tsx', 'jest.setup.mjs', 'jest.setup.cjs', 'jest.setup.esm.js', 'jest.setup.esm.ts', 'jest.setup.esm.tsx', 'jest.setup.esm.mjs', 'jest.setup.esm'],
         recursive: true,
         unknown: 'warn',
@@ -45,7 +52,7 @@ export const indexGithubRepo = async (projectId: string, githubUrl: string, gith
         SET "summaryEmbeddings" = ${embedding.embedding}::vector 
         WHERE "id" = ${sourceCodeEmbedding.id}
     `
-    
+
     }))
 }
 

@@ -21,6 +21,22 @@ type Response = {
 
 }
 
+export const getDefaultBranch = async (githubUrl: string) => {
+    const [owner, repo] = githubUrl.split("/").slice(-2);
+    if (!owner || !repo) {
+        throw new TRPCClientError('Invalid Github URL');
+    }
+
+    const { data } = await octokit.rest.repos.get({
+        owner,
+        repo,
+    });
+
+    return data.default_branch;
+}
+
+
+
 
 export const getCommitHashes = async (githubUrl: string): Promise<Response[]> => {
     const [owner, repo] = githubUrl.split("/").slice(-2);
