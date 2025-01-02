@@ -18,8 +18,8 @@ const CodeReferences = ({ filesReferences }: Props) => {
             <Tabs value={tab} onValueChange={setTab}>
                 <div className='overflow-scroll flex gap-2 bg-gray-300 rounded-md p-2'>
                     {filesReferences.map(file => (
-                        <Button  onClick={() => setTab(file.fileName)} key={file.fileName} className={cn(
-                            `px-3 py-1.5 text-sm font-medium rounded-md transition-colors whitespace-nowrap text-muted-foreground hover:text-muted`,
+                        <Button onClick={() => setTab(file.fileName)} key={file.fileName} className={cn(
+                            `px-3 py-1.5 text-sm font-medium rounded-md transition-colors whitespace-nowrap text-muted-foreground hover:text-muted font-grotesk`,
                             {
                                 'bg-primary  text-primary-foreground': tab === file.fileName,
                             }
@@ -31,7 +31,7 @@ const CodeReferences = ({ filesReferences }: Props) => {
                 </div>
                 {filesReferences.map(file => (
                     <TabsContent key={file.fileName} value={file.fileName} className='max-h-[40vh] overflow-scroll max-w-9xl rounded-md font-grotesk'>
-                        <SyntaxHighlighter language="typescript" style={lucario} showLineNumbers >
+                        <SyntaxHighlighter language="typescript" style={lucario} showLineNumbers className="font-grotesk" >
                             {file.sourceCode}
                         </SyntaxHighlighter>
                     </TabsContent>
